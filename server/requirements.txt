@@ -1,0 +1,26 @@
+# Core framework
+fastapi
+uvicorn[standard]
+
+# Pydantic (compatible with your current setup)
+pydantic>=1.9.0,<2.0.0
+pydantic-settings==1.3.0
+
+# Environment variables
+python-dotenv
+
+# AI/ML libraries
+sentence-transformers
+numpy
+google-generativeai
+
+# Search and web scraping
+tavily-python
+trafilatura
+
+# WebSocket support
+websockets
+
+# Optional: for better performance (if not auto-installed)
+torch
+transformers

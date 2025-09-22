@@ -43,7 +43,7 @@ As play concluded for the day, Australia stood at **311/6**, with Steve Smith ho
         fullResponse = "";
       }
       setState(() {
-        fullResponse += data['data'];
+        fullResponse += data['data'] ?? '';
         isLoading = false;
       });
     });
@@ -56,24 +56,21 @@ As play concluded for the day, Australia stood at **311/6**, with Steve Smith ho
       children: [
         Text(
           'Perplexity',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         Skeletonizer(
           enabled: isLoading,
           child: Markdown(
             data: fullResponse,
             shrinkWrap: true,
-            styleSheet:
-                MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-              codeblockDecoration: BoxDecoration(
-                color: AppColors.cardColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              code: const TextStyle(fontSize: 16),
-            ),
+            styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                .copyWith(
+                  codeblockDecoration: BoxDecoration(
+                    color: AppColors.cardColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  code: const TextStyle(fontSize: 16),
+                ),
           ),
         ),
       ],

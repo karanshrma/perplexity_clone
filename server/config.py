@@ -1,9 +1,15 @@
+# config.py
+import os
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
 
+# .env file ko load kar
 load_dotenv()
 
+class Settings:
+    def __init__(self):
+        self.TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
+        self.GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-class Settings(BaseSettings):
-    TAVILY_API_KEY: str = ""
-    GEMINI_API_KEY: str = ""
+        # Debug ke liye print kar
+        print(f"Tavily API Key loaded: {'Yes' if self.TAVILY_API_KEY else 'No'}")
+        print(f"Gemini API Key loaded: {'Yes' if self.GEMINI_API_KEY else 'No'}")

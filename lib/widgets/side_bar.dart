@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:perplexity_clone/pages/home_page.dart';
 import 'package:perplexity_clone/theme/colors.dart';
 import 'package:perplexity_clone/widgets/side_bar_button.dart';
 
@@ -33,10 +34,18 @@ class _SideBarState extends State<SideBar> {
                   : CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                SideBarButton(
-                  isCollapsed: isCollapsed,
-                  icon: Icons.add,
-                  text: "Home",
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                  },
+                  child: SideBarButton(
+                    isCollapsed: isCollapsed,
+                    icon: Icons.add,
+                    text: "Home",
+                  ),
                 ),
                 SideBarButton(
                   isCollapsed: isCollapsed,

@@ -9,11 +9,13 @@ class ChatWebService {
   factory ChatWebService() => _instance;
 
   ChatWebService._internal();
+
   final _searchResultController = StreamController<Map<String, dynamic>>();
   final _contentController = StreamController<Map<String, dynamic>>();
 
   Stream<Map<String, dynamic>> get searchResultStream =>
       _searchResultController.stream;
+
   Stream<Map<String, dynamic>> get contentStream => _contentController.stream;
 
   void connect() {
@@ -21,6 +23,7 @@ class ChatWebService {
 
     _socket!.messages.listen((message) {
       final data = json.decode(message);
+
       if (data['type'] == 'search_result') {
         _searchResultController.add(data);
       } else if (data['type'] == 'content') {

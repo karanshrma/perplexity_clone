@@ -9,9 +9,17 @@ from services.search_service import SearchService
 
 app = FastAPI()
 
-search_service = SearchService()
-sort_source_service = SortSourceService()
-llm_service = LLMService()
+search_service = None
+sort_source_service = None
+llm_service = None
+
+@app.on_event("startup")
+async def startup_event():
+    global search_service, sort_source_service, llm_service
+    search_service = SearchService()
+    sort_source_service = SortSourceService()
+    llm_service = LLMService()
+    print("✅ Services initialized")
 
 
 # chat websocket
@@ -47,3 +55,6 @@ def chat_endpoint(body: ChatBody):
     response = llm_service.generate_response(body.query, sorted_results)
 
     return response
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
