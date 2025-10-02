@@ -1,0 +1,18 @@
+Collecting pydantic
+  Downloading pydantic-2.11.8-py3-none-any.whl (444 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 444.8/444.8 KB 1.1 MB/s eta 0:00:00
+Collecting pydantic-settings
+  Using cached pydantic_settings-2.10.1-py3-none-any.whl (45 kB)
+Collecting annotated-types>=0.6.0
+  Using cached annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Collecting typing-extensions>=4.12.2
+  Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 KB 2.1 MB/s eta 0:00:00
+Collecting typing-inspection>=0.4.0
+  Using cached typing_inspection-0.4.1-py3-none-any.whl (14 kB)
+Collecting pydantic-core==2.33.2
+  Using cached pydantic_core-2.33.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
+Collecting python-dotenv>=0.21.0
+  Using cached python_dotenv-1.1.1-py3-none-any.whl (20 kB)
+Installing collected packages: typing-extensions, python-dotenv, annotated-types, typing-inspection, pydantic-core, pydantic, pydantic-settings
+Successfully installed annotated-types-0.7.0 pydantic-2.11.8 pydantic-core-2.33.2 pydantic-settings-2.10.1 python-dotenv-1.1.1 typing-extensions-4.15.0 typing-inspection-0.4.1
