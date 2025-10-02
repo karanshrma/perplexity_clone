@@ -19,22 +19,51 @@ class ChatWebService {
   Stream<Map<String, dynamic>> get contentStream => _contentController.stream;
 
   void connect() {
-    _socket = WebSocket(Uri.parse("ws://localhost:8000/ws/chat"));
+    print('[DEBUG] Attempting to connect to WebSocket...');
+    _socket = WebSocket(Uri.parse("ws://192.168.1.11:8001/ws/chat"));
 
     _socket!.messages.listen((message) {
-      final data = json.decode(message);
+      print('[DEBUG] Received raw message: $message');
 
-      if (data['type'] == 'search_result') {
-        _searchResultController.add(data);
-      } else if (data['type'] == 'content') {
-        _contentController.add(data);
+      try {
+        final data = json.decode(message);
+        print('[DEBUG] Decoded message: $data');
+
+        if (data['type'] == 'search_result') {
+          print('[DEBUG] Adding to searchResultStream');
+          _searchResultController.add(data);
+        } else if (data['type'] == 'content') {
+          print('[DEBUG] Adding to contentStream');
+          _contentController.add(data);
+        } else {
+          print('[DEBUG] Unknown message type: ${data['type']}');
+        }
+      } catch (e) {
+        print('[ERROR] Failed to decode message: $e');
       }
+    }, onDone: () {
+      print('[DEBUG] WebSocket connection closed');
+    }, onError: (error) {
+      print('[ERROR] WebSocket error: $error');
     });
+
+    print('[DEBUG] WebSocket connection initialized');
   }
 
   void chat(String query) {
-    print(query);
-    print(_socket);
-    _socket!.send(json.encode({'query': query}));
+    print('[DEBUG] Sending chat query: $query');
+    if (_socket == null) {
+      print('[ERROR] Socket is not connected!');
+      return;
+    }
+
+    try {
+      final message = json.encode({'query': query});
+      print('[DEBUG] Encoded message: $message');
+      _socket!.send(message);
+      print('[DEBUG] Message sent successfully');
+    } catch (e) {
+      print('[ERROR] Failed to send message: $e');
+    }
   }
 }

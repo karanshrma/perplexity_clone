@@ -1,11 +1,13 @@
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:html' as html;
-import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 import 'package:perplexity_clone/pages/chat_page.dart';
+import 'package:perplexity_clone/services/auth_service.dart';
 import 'package:perplexity_clone/services/chat_web_service.dart';
 import 'package:perplexity_clone/theme/colors.dart';
-import 'package:perplexity_clone/widgets/file_preview.dart';
 import 'package:perplexity_clone/widgets/search_bar_button.dart';
 
 class SearchSection extends StatefulWidget {
@@ -16,12 +18,25 @@ class SearchSection extends StatefulWidget {
 }
 
 class _SearchSectionState extends State<SearchSection> {
-  Uint8List? imageBytes;
-  String? fileName;
-  html.File? _selectedFile;
-  bool isFileAttached = false;
-
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  late final AuthService authService;
   final queryController = TextEditingController();
+  bool isAttached = false;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource imageSource) async {
+    final XFile? image = await _picker.pickImage(source: imageSource);
+    setState(() {
+      _selectedImage = File(image!.path);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    authService = AuthService(firebaseAuth);
+  }
 
   @override
   void dispose() {
@@ -31,87 +46,81 @@ class _SearchSectionState extends State<SearchSection> {
 
   Future<void> _pickImageFromGallery() async {
     try {
-      // Create a hidden file input element
-      final html.InputElement input =
-          html.document.createElement('input') as html.InputElement;
-      input.type = 'file';
-      input.accept = 'image/*,application/pdf,.txt,.doc,.docx,.csv,.json';
-      input.multiple = false;
-
-      // Make it completely hidden
-      input.style.display = 'none';
-      html.document.body!.append(input);
-
-      // Listen for file selection
-      input.onChange.listen((e) async {
-        final files = input.files;
-        if (files == null || files.isEmpty) {
-          input.remove();
-          return;
-        }
-
-        final file = files[0];
-        _selectedFile = file;
-        print(
-          'File selected: ${file.name}, Size: ${file.size} bytes, Type: ${file.type}',
-        );
-
-        final reader = html.FileReader();
-
-        reader.readAsArrayBuffer(file);
-        reader.onLoadEnd.listen((e) {
-          final bytes = reader.result as Uint8List;
-
-          setState(() {
-            imageBytes = bytes;
-            fileName = file.name;
-            isFileAttached = true;
-          });
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(' ${file.name} attached '),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-
-          input.remove();
-        });
-
-        reader.onError.listen((e) {
-          if (mounted) {
-            print('Error reading file');
-          }
-          input.remove();
-        });
-      });
-
-      // Open file picker
-      input.click();
+      // Show bottom sheet to choose between camera, gallery, or file
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Photo Library'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_camera),
+                  title: const Text('Camera'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
     } catch (e) {
-      print('Error picking image: $e');
+      print('Error showing picker options: $e');
       if (mounted) {
-        print(' Failed to open file picker');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to open file picker'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
   }
 
-  void _removeFile() {
-    setState(() {
-      imageBytes = null;
-      fileName = null;
-      _selectedFile = null;
-      isFileAttached = false;
-    });
+  Future<void> signIn() async {
+    final userCredential = await authService.signInWithGoogle();
+    if (userCredential != null) {
+      if (mounted) Navigator.pop(context);
+    }
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
+    // final userId = await AuthService.getUserId();
+    // if (userId == null) {
+    //   return showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return AlertDialog(
+    //         title: TextButton(
+    //           onPressed: signIn,
+    //           child: Text(
+    //             'Sign in to continue',
+    //             textAlign: TextAlign.center,
+    //             style: TextStyle(color: Colors.black),
+    //           ),
+    //         ),
+    //       );
+    //     },
+    //   );
+    // }
     final query = queryController.text.trim();
-    if (query.isEmpty && !isFileAttached) return;
+
+    if (query.isEmpty) {
+      return;
+    }
 
     ChatWebService().chat(query);
+
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (context) => ChatPage(question: query)));
@@ -139,90 +148,156 @@ class _SearchSectionState extends State<SearchSection> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: AppColors.searchBarBorder, width: 1.5),
           ),
-          child: Column(
-            children: [
-              if (isFileAttached && imageBytes != null && fileName != null)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: (isAttached == true)
+              ? Row(
                   children: [
-                    Container(
-                      width: 350,
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.searchBar,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(8),
-                          topRight: Radius.circular(8),
-                        ),
-                        border: Border(
-                          bottom: BorderSide(
-                            color: AppColors.searchBarBorder.withOpacity(0.3),
-                            width: 1,
+                    Image.file(_selectedImage!, height: 200),
+
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  autofocus: true,
+                                  controller: queryController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Search anything...',
+                                    hintStyle: TextStyle(
+                                      color: AppColors.textGrey,
+                                      fontSize: 16,
+                                    ),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  onSubmitted: (_) => _handleSubmit(),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: _pickImageFromGallery,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.searchBarBorder
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Icon(
+                                    Icons.attach_file,
+                                    color: AppColors.textGrey,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      child: FilePreview(
-                        imageBytes: imageBytes!,
-                        filename: fileName!,
-                        onRemove: _removeFile,
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            children: [
+                              SearchBarButton(
+                                icon: Icons.auto_awesome_outlined,
+                                text: 'Focus',
+                              ),
+                              const SizedBox(width: 12),
+                              GestureDetector(
+                                onTap: _handleSubmit,
+                                child: Container(
+                                  padding: EdgeInsets.all(9),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.submitButton,
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward,
+                                    color: AppColors.background,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: queryController,
-                  decoration: InputDecoration(
-                    hintText: 'Search anything...',
-                    hintStyle: TextStyle(
-                      color: AppColors.textGrey,
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  onSubmitted: (_) => _handleSubmit(),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
+                )
+              : Column(
                   children: [
-                    SearchBarButton(
-                      icon: Icons.auto_awesome_outlined,
-                      text: 'Focus',
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              autofocus: true,
+                              controller: queryController,
+                              decoration: InputDecoration(
+                                hintText: 'Search anything...',
+                                hintStyle: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              onSubmitted: (_) => _handleSubmit(),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _pickImageFromGallery,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.searchBarBorder.withOpacity(
+                                  0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Icon(
+                                Icons.attach_file,
+                                color: AppColors.textGrey,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    // GestureDetector(
-                    //   onTap: _pickImageFromGallery,
-                    //   child: SearchBarButton(
-                    //     icon: Icons.add_circle_outline_outlined,
-                    //     text: 'Attach',
-                    //   ),
-                    // ),
-                    // const Spacer(),
-                    GestureDetector(
-                      onTap: _handleSubmit,
-                      child: Container(
-                        padding: EdgeInsets.all(9),
-                        decoration: BoxDecoration(
-                          color: AppColors.submitButton,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          color: AppColors.background,
-                          size: 16,
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        children: [
+                          SearchBarButton(
+                            icon: Icons.auto_awesome_outlined,
+                            text: 'Focus',
+                          ),
+                          const SizedBox(width: 12),
+                          GestureDetector(
+                            onTap: _handleSubmit,
+                            child: Container(
+                              padding: EdgeInsets.all(9),
+                              decoration: BoxDecoration(
+                                color: AppColors.submitButton,
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_forward,
+                                color: AppColors.background,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
         ),
       ],
     );

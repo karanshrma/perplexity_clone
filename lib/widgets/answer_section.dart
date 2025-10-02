@@ -43,7 +43,8 @@ As play concluded for the day, Australia stood at **311/6**, with Steve Smith ho
         fullResponse = "";
       }
       setState(() {
-        fullResponse += data['data'] ?? '';
+        fullResponse += data['data'];
+        print(fullResponse);
         isLoading = false;
       });
     });
@@ -59,6 +60,11 @@ As play concluded for the day, Australia stood at **311/6**, with Steve Smith ho
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         Skeletonizer(
+          effect: ShimmerEffect(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            duration: const Duration(seconds: 1),
+          ),
           enabled: isLoading,
           child: Markdown(
             data: fullResponse,

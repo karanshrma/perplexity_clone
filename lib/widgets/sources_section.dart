@@ -4,6 +4,7 @@ import 'package:perplexity_clone/theme/colors.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
 class SourcesSection extends StatefulWidget {
   const SourcesSection({super.key});
 
@@ -41,13 +42,44 @@ class _SourcesSectionState extends State<SourcesSection> {
       });
     });
   }
+  Future<void> _launchWebUrl(String url) async {
+    try {
+      print('Launching URL: $url');
+      final uri = Uri.parse(url);
 
-  Future<void> _launchUrl(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
+      // Use the specific launch method that should work
+      bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not open link'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error launching URL: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error opening link'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -66,24 +98,29 @@ class _SourcesSectionState extends State<SourcesSection> {
         ),
         const SizedBox(height: 16),
         Skeletonizer(
+          effect: ShimmerEffect(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            duration: const Duration(seconds: 1),
+          ),
           enabled: isLoading,
           child: GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // 2 columns
+              crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio:
-                  1.2, // adjust based on your container height/width
+              childAspectRatio: 1.0
             ),
             itemCount: searchResults.length,
+            padding: EdgeInsets.only(top: 4 , ),
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               final res = searchResults[index];
-              return GestureDetector(
-                onTap: () => _launchUrl(res['url']),
+              return InkWell(
+
+                onTap: () =>  _launchWebUrl(res['url']),
                 child: Container(
-                  height: 120,
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.cardColor,
@@ -94,15 +131,20 @@ class _SourcesSectionState extends State<SourcesSection> {
                     children: [
                       Text(
                         res['title'],
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        Uri.parse(res['url']).host,
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                        maxLines: 1,
+                        res['url'],
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 8,
+                        ),
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -110,7 +152,8 @@ class _SourcesSectionState extends State<SourcesSection> {
                 ),
               );
             },
-          ),
+          )
+
         ),
       ],
     );

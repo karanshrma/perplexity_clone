@@ -6,6 +6,8 @@ import 'package:perplexity_clone/widgets/search_section.dart';
 import 'package:perplexity_clone/widgets/side_bar.dart';
 
 class HomePage extends StatefulWidget {
+  static route() => MaterialPageRoute(builder: (context) => HomePage());
+
   const HomePage({super.key});
 
   @override
@@ -16,52 +18,57 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    print("[HomePage] initState called");
+
     ChatWebService().connect();
     print("[HomePage] ChatWebService.connect() called");
   }
 
   @override
   Widget build(BuildContext context) {
-    print("[HomePage] build() called");
     return Scaffold(
-      body: Row(
-        children: [
-          kIsWeb
-              ? () {
-                  print("[HomePage] Showing SideBar on Web");
-                  return SideBar();
-                }()
-              : () {
-                  print("[HomePage] Hiding SideBar on Mobile");
-                  return SizedBox();
-                }(),
-          Expanded(
-            child: Padding(
-              padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
-              child: Column(
-                children: [
-                  Expanded(child: SearchSection()),
-                  // footer
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      children: [
-                        _footerItem("Pro"),
-                        _footerItem("Enterprise"),
-                        _footerItem("Store"),
-                        _footerItem("Blog"),
-                        _footerItem("Careers"),
-                        _footerItem("English (English)"),
-                      ],
-                    ),
-                  ),
-                ],
+      body: SafeArea(
+        child: Row(
+          children: [
+            kIsWeb
+                ? () {
+                    return SideBar();
+                  }()
+                : () {
+                    return SizedBox();
+                  }(),
+            Expanded(
+              child: Padding(
+                padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    Expanded(child: SearchSection()),
+                    // footer
+                    kIsWeb
+                        ? () {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  _footerItem("Pro"),
+                                  _footerItem("Enterprise"),
+                                  _footerItem("Store"),
+                                  _footerItem("Blog"),
+                                  _footerItem("Careers"),
+                                  _footerItem("English (English)"),
+                                ],
+                              ),
+                            );
+                          }()
+                        : () {
+                            return SizedBox();
+                          }(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
