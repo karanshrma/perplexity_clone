@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:perplexity_clone/services/chat_web_service.dart';
 import 'package:perplexity_clone/theme/colors.dart';
@@ -64,72 +65,75 @@ class _SourcesSectionState extends State<SourcesSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.source_outlined, color: Colors.white70),
-            SizedBox(width: 8),
-            Text(
-              "Sources",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Skeletonizer(
-          effect: ShimmerEffect(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            duration: const Duration(seconds: 1),
+    return Padding(
+      padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.source_outlined, color: Colors.white70),
+              SizedBox(width: 8),
+              Text(
+                "Sources",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
-          enabled: isLoading,
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.0,
+          const SizedBox(height: 16),
+          Skeletonizer(
+            effect: ShimmerEffect(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              duration: const Duration(seconds: 1),
             ),
-            itemCount: searchResultsFromBackend.length,
-            padding: EdgeInsets.only(top: 4),
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              final res = searchResultsFromBackend[index];
-              return InkWell(
-                onTap: () => _launchWebUrl(searchResultsFromBackend[index].url),
-                child: Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardColor,
-                    borderRadius: BorderRadius.circular(8),
+            enabled: isLoading,
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.0,
+              ),
+              itemCount: searchResultsFromBackend.length,
+              padding: EdgeInsets.only(top: 4),
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final res = searchResultsFromBackend[index];
+                return InkWell(
+                  onTap: () => _launchWebUrl(searchResultsFromBackend[index].url),
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          searchResultsFromBackend[index].title,
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          searchResultsFromBackend[index].url,
+                          style: TextStyle(color: Colors.grey, fontSize: 8),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        searchResultsFromBackend[index].title,
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        searchResultsFromBackend[index].url,
-                        style: TextStyle(color: Colors.grey, fontSize: 8),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

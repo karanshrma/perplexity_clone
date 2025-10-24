@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:perplexity_clone/services/chat_web_service.dart';
 import 'package:perplexity_clone/theme/colors.dart';
 import 'package:perplexity_clone/widgets/search_section.dart';
@@ -40,8 +41,18 @@ class _HomePageState extends State<HomePage> {
               child: Padding(
                 padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(child: SearchSection()),
+                    Text(
+                      'Where knowledge begins',
+                      style: GoogleFonts.ibmPlexMono(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w400,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    SearchSection(),
                     // footer
                     kIsWeb
                         ? () {

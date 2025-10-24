@@ -133,15 +133,6 @@ class _SearchSectionState extends State<SearchSection> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Where knowledge begins',
-          style: GoogleFonts.ibmPlexMono(
-            fontSize: 40,
-            fontWeight: FontWeight.w400,
-            height: 1.2,
-            letterSpacing: -0.5,
-          ),
-        ),
         const SizedBox(height: 32),
         Container(
           width: 700,

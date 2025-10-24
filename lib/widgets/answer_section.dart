@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:perplexity_clone/services/chat_web_service.dart';
@@ -29,34 +30,37 @@ class _AnswerSectionState extends State<AnswerSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Perplexity',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        Skeletonizer(
-          effect: ShimmerEffect(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            duration: const Duration(seconds: 1),
+    return Padding(
+      padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Perplexity',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          enabled: isLoading,
-          child: Markdown(
-            data: fullResponse,
-            shrinkWrap: true,
-            styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                .copyWith(
-                  codeblockDecoration: BoxDecoration(
-                    color: AppColors.cardColor,
-                    borderRadius: BorderRadius.circular(10),
+          Skeletonizer(
+            effect: ShimmerEffect(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              duration: const Duration(seconds: 1),
+            ),
+            enabled: isLoading,
+            child: Markdown(
+              data: fullResponse,
+              shrinkWrap: true,
+              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                  .copyWith(
+                    codeblockDecoration: BoxDecoration(
+                      color: AppColors.cardColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    code: const TextStyle(fontSize: 16),
                   ),
-                  code: const TextStyle(fontSize: 16),
-                ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
