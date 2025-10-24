@@ -3,7 +3,6 @@
 A Flutter-based AI-powered question-answering application leveraging **Retrieval-Augmented Generation (RAG)** to fetch relevant online sources and generate context-rich, accurate responses.
 
 Walkthrough Video - https://drive.google.com/file/d/1eWRpJ7hCDLIn3srLNW7LsBOtggF6ZPms/view?usp=sharing
-
 ---
 
 ## Features

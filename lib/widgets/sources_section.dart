@@ -67,7 +67,7 @@ class _SourcesSectionState extends State<SourcesSection> {
   Widget build(BuildContext context) {
     return Padding(
       padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
-      child: Column(
+      child: isLoading ? const Center(child: CircularProgressIndicator(color: Colors.white,),) :Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
@@ -111,6 +111,7 @@ class _SourcesSectionState extends State<SourcesSection> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           searchResultsFromBackend[index].title,
@@ -121,7 +122,7 @@ class _SourcesSectionState extends State<SourcesSection> {
                         const SizedBox(height: 8),
                         Text(
                           searchResultsFromBackend[index].url,
-                          style: TextStyle(color: Colors.grey, fontSize: 8),
+                          style: TextStyle(color: Colors.grey, fontSize: 7),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),

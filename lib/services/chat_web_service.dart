@@ -19,7 +19,7 @@ class ChatWebService {
   Stream<String> get contentStream => _contentController.stream;
 
   void connect() {
-    _socket = WebSocket(Uri.parse("ws://localhost:8001/ws/chat"));
+    _socket = WebSocket(Uri.parse("ws://192.168.1.11:8001/ws/chat"));
 
     _socket!.messages.listen((message) {
       try {

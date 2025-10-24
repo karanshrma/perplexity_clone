@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:perplexity_clone/theme/colors.dart';
 
 class SideBarButton extends StatelessWidget {

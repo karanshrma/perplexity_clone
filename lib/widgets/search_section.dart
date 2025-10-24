@@ -1,11 +1,7 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:perplexity_clone/pages/chat_page.dart';
-import 'package:perplexity_clone/services/auth_service.dart';
 import 'package:perplexity_clone/services/chat_web_service.dart';
 import 'package:perplexity_clone/theme/colors.dart';
 import 'package:perplexity_clone/widgets/search_bar_button.dart';
@@ -18,8 +14,6 @@ class SearchSection extends StatefulWidget {
 }
 
 class _SearchSectionState extends State<SearchSection> {
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  late final AuthService authService;
   final queryController = TextEditingController();
   bool isAttached = false;
   File? _selectedImage;
@@ -35,7 +29,6 @@ class _SearchSectionState extends State<SearchSection> {
   @override
   void initState() {
     super.initState();
-    authService = AuthService(firebaseAuth);
   }
 
   @override
@@ -87,12 +80,12 @@ class _SearchSectionState extends State<SearchSection> {
     }
   }
 
-  Future<void> signIn() async {
-    final userCredential = await authService.signInWithGoogle();
-    if (userCredential != null) {
-      if (mounted) Navigator.pop(context);
-    }
-  }
+  // Future<void> signIn() async {
+  //   final userCredential = await authService.signInWithGoogle();
+  //   if (userCredential != null) {
+  //     if (mounted) Navigator.pop(context);
+  //   }
+  // }
 
   Future<void> _handleSubmit() async {
     // final userId = await AuthService.getUserId();

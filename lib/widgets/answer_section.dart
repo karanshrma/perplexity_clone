@@ -32,7 +32,7 @@ class _AnswerSectionState extends State<AnswerSection> {
   Widget build(BuildContext context) {
     return Padding(
       padding: !kIsWeb ? const EdgeInsets.all(8.0) : EdgeInsets.zero,
-      child: Column(
+      child: isLoading ? Text("") : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
