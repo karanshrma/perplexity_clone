@@ -11,8 +11,20 @@ class LLMService:
         genai.configure(api_key=settings.GEMINI_API_KEY)
         self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
+    def generate_response(self, query: str, search_results: list[dict], history: list[dict] = None):
+        """
+        history: List of previous messages in the format:
+                 [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
+        """
+        # Format conversation history
+        history_text = ""
+        if history:
+            for turn in history:
+                role = turn['role']
+                content = turn['content']
+                history_text += f"{role.capitalize()}: {content}\n"
 
-    def generate_response(self, query: str, search_results: list[dict]):
+        # Format search results
         context_text = "\n\n".join(
             [
                 f"Source {i + 1} ({result['url']}):\n{result['content']}"
@@ -21,15 +33,19 @@ class LLMService:
         )
 
         full_prompt = f"""
-            Context from web search:
-            {context_text}
-    
-            Query: {query}
-    
-            Please provide a comprehensive, detailed, well-cited accurate response using the above context. 
-            Think and reason deeply. Ensure it answers the query the user is asking. Do not use your knowledge until it is absolutely necessary.
-            """
+        Conversation history:
+        {history_text}
+        
+        Context from web search:
+        {context_text}
+        
+        User query: {query}
+        
+        Please provide a comprehensive, detailed, well-cited accurate response using the conversation history and the above context. 
+        Think and reason deeply. Ensure it answers the query the user is asking. Do not use your knowledge until it is absolutely necessary.
+                """
 
+        # Generate response from Gemini model
         response = self.model.generate_content(full_prompt, stream=True)
 
         for chunk in response:

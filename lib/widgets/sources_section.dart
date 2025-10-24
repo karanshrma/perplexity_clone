@@ -4,6 +4,7 @@ import 'package:perplexity_clone/theme/colors.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../model/search_result.dart';
 
 class SourcesSection extends StatefulWidget {
   const SourcesSection({super.key});
@@ -14,34 +15,19 @@ class SourcesSection extends StatefulWidget {
 
 class _SourcesSectionState extends State<SourcesSection> {
   bool isLoading = true;
-  List searchResults = [
-    {
-      'title': 'Ind vs Aus Live Score 4th Test',
-      'url':
-          'https://www.moneycontrol.com/sports/cricket/ind-vs-aus-live-score-4th-test-shubman-gill-dropped-australia-win-toss-opt-to-bat-liveblog-12897631.html',
-    },
-    {
-      'title': 'Ind vs Aus Live Boxing Day Test',
-      'url':
-          'https://timesofindia.indiatimes.com/sports/cricket/india-vs-australia-live-score-boxing-day-test-2024-ind-vs-aus-4th-test-day-1-live-streaming-online/liveblog/116663401.cms',
-    },
-    {
-      'title': 'Ind vs Aus - 4 Australian Batters Score Half Centuries',
-      'url':
-          'https://economictimes.indiatimes.com/news/sports/ind-vs-aus-four-australian-batters-score-half-centuries-in-boxing-day-test-jasprit-bumrah-leads-indias-fightback/articleshow/116674365.cms',
-    },
-  ];
+  List<SearchResult> searchResultsFromBackend = [];
 
   @override
   void initState() {
     super.initState();
-    ChatWebService().searchResultStream.listen((data) {
+    ChatWebService().searchResultStream.listen((results) {
       setState(() {
-        searchResults = data['data'];
+        searchResultsFromBackend = results;
         isLoading = false;
       });
     });
   }
+
   Future<void> _launchWebUrl(String url) async {
     try {
       print('Launching URL: $url');
@@ -76,11 +62,6 @@ class _SourcesSectionState extends State<SourcesSection> {
     }
   }
 
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -109,17 +90,16 @@ class _SourcesSectionState extends State<SourcesSection> {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.0
+              childAspectRatio: 1.0,
             ),
-            itemCount: searchResults.length,
-            padding: EdgeInsets.only(top: 4 , ),
+            itemCount: searchResultsFromBackend.length,
+            padding: EdgeInsets.only(top: 4),
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              final res = searchResults[index];
+              final res = searchResultsFromBackend[index];
               return InkWell(
-
-                onTap: () =>  _launchWebUrl(res['url']),
+                onTap: () => _launchWebUrl(searchResultsFromBackend[index].url),
                 child: Container(
                   padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -130,20 +110,15 @@ class _SourcesSectionState extends State<SourcesSection> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        res['title'],
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        searchResultsFromBackend[index].title,
+                        style: TextStyle(fontWeight: FontWeight.w500),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        res['url'],
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 8,
-                        ),
+                        searchResultsFromBackend[index].url,
+                        style: TextStyle(color: Colors.grey, fontSize: 8),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -152,8 +127,7 @@ class _SourcesSectionState extends State<SourcesSection> {
                 ),
               );
             },
-          )
-
+          ),
         ),
       ],
     );

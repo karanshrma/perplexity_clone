@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
+
 class AuthService {
   final FirebaseAuth firebaseAuth;
 
@@ -14,7 +15,9 @@ class AuthService {
     try {
       if (kIsWeb) {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        final userCredential =  await firebaseAuth.signInWithPopup(googleProvider);
+        final userCredential = await firebaseAuth.signInWithPopup(
+          googleProvider,
+        );
         await _saveUserId(userCredential.user!.uid);
       }
       final GoogleSignIn googleSignIn = GoogleSignIn.instance;
@@ -26,8 +29,6 @@ class AuthService {
       );
       googleUser = await googleSignIn.attemptLightweightAuthentication();
 
-      googleUser = await googleSignIn.attemptLightweightAuthentication();
-
       if (googleSignIn.supportsAuthenticate() && googleUser == null) {
         googleUser = await googleSignIn.authenticate();
       }
@@ -37,12 +38,10 @@ class AuthService {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // Create Firebase credential using Google auth tokens
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google credential
       final UserCredential userCredential = await firebaseAuth
           .signInWithCredential(credential);
 
@@ -53,13 +52,14 @@ class AuthService {
       print(e.toString());
     }
   }
-  Future<void> _saveUserId(String id)async{
-    if(id.isEmpty) return;
+
+  Future<void> _saveUserId(String id) async {
+    if (id.isEmpty) return;
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.setString('userId', id);
   }
 
-  static Future<String?> getUserId() async{
+  static Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('userId');
   }

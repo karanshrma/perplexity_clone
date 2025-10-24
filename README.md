@@ -76,12 +76,14 @@ flutter pub get
 Run the app on Android:  
 ```bash
 flutter run
-
+```
 ## Project Structure  
+``` text
 perplexity_clone/
 ├─ server/ # FastAPI backend, RAG pipeline
 │ ├─ lib/ # Flutter source code
 │ ├─ assets/ # Images & fonts
 │ └─ pubspec.yaml # Flutter dependencies
 ├─ requirements.txt # Python dependencies
-└─ README.md # Project documentation
+└─ README.md # Project documentation 
+```

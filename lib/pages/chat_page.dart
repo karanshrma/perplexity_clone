@@ -4,76 +4,82 @@ import 'package:perplexity_clone/theme/colors.dart';
 import 'package:perplexity_clone/widgets/answer_section.dart';
 import 'package:perplexity_clone/widgets/side_bar.dart';
 import 'package:perplexity_clone/widgets/sources_section.dart';
+import '../widgets/search_section.dart';
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
   final String question;
 
   const ChatPage({super.key, required this.question});
 
   @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  @override
   Widget build(BuildContext context) {
-    print("[ChatPage] build() called with question: $question");
+    final bool isWeb = kIsWeb;
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            kIsWeb
-                ? () {
-                    print("[ChatPage] Showing SideBar on Web");
-                    return SideBar();
-                  }()
-                : () {
-                    print("[ChatPage] Hiding SideBar on Mobile");
-                    return const SizedBox();
-                  }(),
-            kIsWeb
-                ? () {
-                    print("[ChatPage] Adding spacing (100px) on Web");
-                    return const SizedBox(width: 100);
-                  }()
-                : const SizedBox(),
+            // ✅ Sidebar visible only on web
+            if (isWeb)
+              const SideBar(),
+
+            // ✅ Main content
             Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      () {
-                        print("[ChatPage] Rendering question text");
-                        return Text(
-                          question,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ✅ Question text
+                        Text(
+                          widget.question,
+                          textAlign: TextAlign.left,
                           style: const TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 36,
+                            fontWeight: FontWeight.w700,
                           ),
-                        );
-                      }(),
-                      const SizedBox(height: 24),
-                      () {
-                        print("[ChatPage] Rendering SourcesSection");
-                        return SourcesSection();
-                      }(),
-                      const SizedBox(height: 24),
-                      () {
-                        print("[ChatPage] Rendering AnswerSection");
-                        return AnswerSection();
-                      }(),
-                    ],
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // ✅ Sources Section
+                        const SourcesSection(),
+
+                        const SizedBox(height: 32),
+
+                        // ✅ Answer Section
+                        const AnswerSection(),
+
+                        const SizedBox(height: 40),
+
+                        // ✅ Search input (footer)
+                        const Divider(thickness: 0.3, color: Colors.white24),
+                        const SizedBox(height: 20),
+                        const SearchSection(),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            kIsWeb
-                ? () {
-                    print("[ChatPage] Rendering Placeholder on Web");
-                    return const Placeholder(
-                      strokeWidth: 0,
-                      color: AppColors.background,
-                    );
-                  }()
-                : const SizedBox(),
+
+            // ✅ Placeholder right panel for large web layout
+            if (isWeb && screenWidth > 1300)
+              Container(
+                width: 260,
+                color: AppColors.background,
+              ),
           ],
         ),
       ),

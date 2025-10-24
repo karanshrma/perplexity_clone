@@ -118,8 +118,10 @@ class _SearchSectionState extends State<SearchSection> {
     if (query.isEmpty) {
       return;
     }
+    print('query is $query');
 
     ChatWebService().chat(query);
+
 
     Navigator.of(
       context,

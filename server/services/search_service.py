@@ -8,7 +8,8 @@ tavily_client = TavilyClient(api_key=settings.TAVILY_API_KEY)
 
 
 class SearchService:
-    def web_search(self, query: str):
+    @staticmethod
+    def web_search(query: str):
 
         try:
             results = []
