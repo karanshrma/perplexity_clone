@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "717061013926",
+    "project_id": "perplexity-flutter-clone",
+    "storage_bucket": "perplexity-flutter-clone.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717061013926:android:f8752ab31208d147210f67",
+        "android_client_info": {
+          "package_name": "com.example.perplexity_clone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApvL-83Ngq7uU5YZhUnp_5ZndRNQ3NJ0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
